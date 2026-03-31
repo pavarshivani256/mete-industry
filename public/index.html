@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mete Industry v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pri:#1a3a5c;--acc:#e8a020;--acc2:#2e86c1;--bg:#f0f4f8;--white:#fff;--text:#1c2b3a;--muted:#6b7f93;--danger:#e74c3c;--success:#27ae60;--border:#d0dce8;--sw:240px}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text)}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a1f35,#1a3a5c,#0e2a45);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s}
+#splash.hide{opacity:0;pointer-events:none}
+.sp-logo{width:100px;animation:pop .8s cubic-bezier(.34,1.56,.64,1) .2s both}
+.sp-title{font-family:'Rajdhani',sans-serif;font-size:2.8rem;font-weight:700;color:#fff;letter-spacing:5px;margin-top:16px;animation:up .6s ease .8s both}
+.sp-sub{color:#e8a020;font-size:.9rem;letter-spacing:4px;text-transform:uppercase;margin-top:6px;animation:up .6s ease 1s both}
+.sp-bar{width:180px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:32px;overflow:hidden;animation:up .6s ease 1.2s both}
+.sp-fill{height:100%;width:0;background:linear-gradient(90deg,#e8a020,#f5c842);border-radius:2px;animation:fill 1.4s ease 1.4s forwards}
+@keyframes pop{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes fill{to{width:100%}}
+
+/* LOGIN */
+#loginPage{position:fixed;inset:0;z-index:1000;background:linear-gradient(135deg,#0a1f35,#1a3a5c,#163050);display:none;align-items:center;justify-content:center}
+#loginPage.show{display:flex}
+.lbox{background:rgba(255,255,255,.06);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:44px;width:420px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.4)}
+.lbox img{width:80px;margin-bottom:8px}
+.lbrand{font-family:'Rajdhani',sans-serif;font-size:1.65rem;font-weight:700;color:#fff;letter-spacing:4px}
+.ltag{color:rgba(255,255,255,.4);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.lwelcome{color:#e8a020;font-size:1rem;font-weight:700;margin-bottom:24px}
+.lfield{margin-bottom:18px;text-align:left}
+.lfield label{display:block;color:rgba(255,255,255,.5);font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.lfield input{width:100%;padding:13px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;transition:border-color .25s}
+.lfield input::placeholder{color:rgba(255,255,255,.25)}
+.lfield input:focus{border-color:#e8a020}
+.lbtn{width:100%;padding:14px;background:linear-gradient(135deg,#e8a020,#f5c842);border:none;border-radius:10px;color:#1a2a1a;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:1px;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(232,160,32,.35)}
+.lbtn:hover{transform:translateY(-2px)}
+.lerr{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#ff8a8a;padding:10px 14px;border-radius:8px;font-size:.85rem;margin-top:14px;display:none}
+.lerr.show{display:block}
+
+/* APP */
+#app{display:none;min-height:100vh}
+#app.show{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--pri);min-height:100vh;position:fixed;left:0;top:0;bottom:0;z-index:100;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,.12)}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
+.sb-brand img{width:44px;border-radius:6px;object-fit:contain}
+.bn{color:#fff;font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:2px;line-height:1.2}
+.bs{color:#e8a020;font-size:.65rem;letter-spacing:2px}
+.sb-nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-sec{font-size:.63rem;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase;padding:12px 10px 5px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:10px;color:rgba(255,255,255,.65);cursor:pointer;margin-bottom:2px;font-size:.88rem;font-weight:600;transition:all .2s}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:#e8a020;color:#fff;box-shadow:0 3px 12px rgba(232,160,32,.3)}
+.nav-item svg{width:17px;height:17px;flex-shrink:0}
+.sb-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.logout{display:flex;align-items:center;gap:9px;color:rgba(255,255,255,.45);cursor:pointer;font-size:.85rem;transition:color .2s}
+.logout:hover{color:#ff6b6b}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column}
+.topbar{background:#fff;padding:13px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.04);position:sticky;top:0;z-index:50}
+.tb-title{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--pri)}
+.avatar{width:36px;height:36px;background:var(--pri);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.85rem}
+.content{padding:26px;flex:1}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* STAT */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:#fff;border-radius:14px;padding:20px 22px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.sc.c1::after{background:var(--acc2)}.sc.c2::after{background:var(--acc)}.sc.c3::after{background:var(--success)}.sc.c4::after{background:var(--danger)}.sc.c5::after{background:#9b59b6}.sc.c6::after{background:#1abc9c}.sc.c7::after{background:#e67e22}.sc.c8::after{background:#e74c3c}
+.sl{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.sv{font-size:1.9rem;font-weight:800;color:var(--pri);font-family:'Rajdhani',sans-serif}
+.sv.sm{font-size:1.3rem}
+.sv.profit{color:var(--success)}.sv.loss{color:var(--danger)}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.04);overflow:hidden;margin-bottom:22px}
+.card-head{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card-title{font-weight:800;font-size:.95rem;color:var(--pri)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+thead th{background:var(--bg);padding:10px 15px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700}
+tbody td{padding:10px 15px;font-size:.87rem;border-bottom:1px solid var(--border)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+
+/* BADGES */
+.badge{padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:700}
+.bg{background:#d4edda;color:#155724}.br{background:#f8d7da;color:#721c24}.bo{background:#fff3cd;color:#856404}.bb{background:#cce5ff;color:#004085}.bp{background:#e2d9f3;color:#491f8a}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:#0e2540}
+.btn-acc{background:var(--acc);color:#fff;box-shadow:0 3px 10px rgba(232,160,32,.25)}.btn-acc:hover{background:#d4911a}
+.btn-suc{background:var(--success);color:#fff}.btn-dan{background:var(--danger);color:#fff}.btn-dan:hover{background:#c0392b}
+.btn-out{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-out:hover{background:var(--bg)}
+.btn-sm{padding:5px 11px;font-size:.78rem}
+
+/* FORMS */
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fr.s1{grid-template-columns:1fr}.fr.s3{grid-template-columns:1fr 1fr 1fr}.fr.s4{grid-template-columns:1fr 1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;background:#fff;color:var(--text)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc2)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:10px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px 30px;width:700px;max-width:98vw;max-height:95vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:mIn .25s ease}
+@keyframes mIn{from{transform:scale(.95) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-title{font-size:1.15rem;font-weight:800;color:var(--pri);margin-bottom:22px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.ph h2{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--pri)}
+.phs{color:var(--muted);font-size:.82rem;margin-top:2px}
+.sinp{padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;width:200px;outline:none;background:#fff}
+.sinp:focus{border-color:var(--acc2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;padding:13px 20px;border-radius:10px;font-weight:700;font-size:.88rem;z-index:9000;transform:translateY(80px);opacity:0;transition:all .3s ease;pointer-events:none;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--success);color:#fff}
+.toast.error{background:var(--danger);color:#fff}
+.toast.info{background:var(--pri);color:#fff}
+
+/* BILL BUILDER */
+.bill-table{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:12px 0}
+.brow{display:grid;grid-template-columns:2fr .6fr .6fr .6fr .6fr 1fr 34px;gap:6px;padding:7px 10px;align-items:center;border-bottom:1px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow.bh{background:var(--bg);font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+.brow select,.brow input{padding:6px 7px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;font-family:'Nunito',sans-serif;width:100%;outline:none}
+.brow select:focus,.brow input:focus{border-color:var(--acc2)}
+.brow input[readonly]{background:var(--bg);color:var(--muted)}
+.rmv{background:none;border:none;cursor:pointer;color:var(--danger);font-size:1.1rem;padding:0 3px}
+.btotal-box{background:var(--pri);color:#fff;border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.btotal-box .bl{opacity:.65;font-size:.9rem}.btotal-box .bv{font-size:2rem;font-weight:800;font-family:'Rajdhani',sans-serif}
+
+/* PRINT */
+@media print{.sidebar,.topbar,.ph .btn,.btn,.overlay,.no-print{display:none!important}.main{margin-left:0!important}.content{padding:0!important}}
+
+/* P&L colors */
+.profit-row td{background:#f0fff4!important}.loss-row td{background:#fff5f5!important}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <img src="logo.png" class="sp-logo" alt="" onerror="this.style.display='none'">
+  <div class="sp-title">METE INDUSTRY</div>
+  <div class="sp-sub">Inventory Management v2.0</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="lbox">
+    <img src="logo.png" alt="" onerror="this.style.display='none'">
+    <div class="lbrand">METE INDUSTRY</div>
+    <div class="ltag">Inventory Management System</div>
+    <div class="lwelcome">Welcome to Mete Industry</div>
+    <div class="lfield"><label>Username</label><input type="text" id="luname" placeholder="Enter username"></div>
+    <div class="lfield"><label>Password</label><input type="password" id="lpass" placeholder="Enter password"></div>
+    <button class="lbtn" id="loginBtn" onclick="doLogin()">LOGIN</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-brand">
+      <img src="logo.png" alt="Logo" id="sidebarLogo" style="width:44px;border-radius:6px" onerror="this.style.display='none'">
+      <div><div class="bn">METE</div><div class="bs">INDUSTRY</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">Main Menu</div>
+      <div class="nav-item active" onclick="goTo('dashboard')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard</div>
+      <div class="nav-item" onclick="goTo('products')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Products</div>
+      <div class="nav-item" onclick="goTo('stock')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Stock</div>
+      <div class="nav-item" onclick="goTo('purchases')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Purchases</div>
+      <div class="nav-item" onclick="goTo('billing')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>Billing</div>
+      <div class="nav-item" onclick="goTo('sales')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sales</div>
+      <div class="nav-item" onclick="goTo('customers')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Customers</div>
+      <div class="nav-item" onclick="goTo('reports')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Reports P&L</div>
+    </nav>
+    <div class="sb-footer">
+      <div class="logout" onclick="doLogout()"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span id="logoutLabel">Logout</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="tbTitle">Dashboard</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:.82rem;color:var(--muted)" id="tbDate"></div>
+        <div class="avatar" id="tbAvatar">A</div>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div id="pg-dashboard" class="page active">
+        <div class="ph"><div><h2>Welcome to Mete Industry</h2><div class="phs" id="dashSub"></div></div></div>
+        <div class="stat-grid">
+          <div class="sc c1"><div class="sl">Total Products</div><div class="sv" id="d1">-</div></div>
+          <div class="sc c2"><div class="sl">Stock Value</div><div class="sv sm" id="d2">-</div></div>
+          <div class="sc c3"><div class="sl">Today Sales</div><div class="sv sm" id="d3">-</div></div>
+          <div class="sc c6"><div class="sl">Month Sales</div><div class="sv sm" id="d4">-</div></div>
+          <div class="sc c7"><div class="sl">Today Purchase</div><div class="sv sm" id="d7">-</div></div>
+          <div class="sc c5"><div class="sl">Month Purchase</div><div class="sv sm" id="d8">-</div></div>
+          <div class="sc c3"><div class="sl">Month Profit/Loss</div><div class="sv sm" id="d9">-</div></div>
+          <div class="sc c4"><div class="sl">Low Stock Items</div><div class="sv" id="d5">-</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Recent Purchases</div><button class="btn btn-out btn-sm" onclick="goTo('purchases')">View All</button></div>
+            <div class="tw"><table><thead><tr><th>Product</th><th>Qty</th><th>Total</th><th>Date</th></tr></thead><tbody id="dPurch"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Recent Bills</div><button class="btn btn-out btn-sm" onclick="goTo('billing')">View All</button></div>
+            <div class="tw"><table><thead><tr><th>Bill No.</th><th>Customer</th><th>Amount</th><th>Date</th></tr></thead><tbody id="dBills"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PRODUCTS ═══ -->
+      <div id="pg-products" class="page">
+        <div class="ph">
+          <div><h2>Products</h2><div class="phs">Manage your product catalog</div></div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="sinp" placeholder="Search..." oninput="filterProd(this.value)">
+            <button class="btn btn-acc" onclick="openProdModal()">+ Add Product</button>
+          </div>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>Name</th><th>Category</th><th>Unit</th><th>Rate</th><th>Stock</th><th>Actions</th></tr></thead>
+          <tbody id="prodTbl"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- ═══ STOCK ═══ -->
+      <div id="pg-stock" class="page">
+        <div class="ph">
+          <div><h2>Stock</h2><div class="phs">Current stock levels</div></div>
+          <div style="display:flex;gap:10px">
+            <input class="sinp" placeholder="Search..." oninput="filterStock(this.value)">
+            <select class="sinp" id="stockCatF" onchange="filterStock('')" style="width:140px"><option value="">All Categories</option></select>
+          </div>
+        </div>
+        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc c2"><div class="sl">Total Stock Value</div><div class="sv sm" id="stVal">-</div></div>
+          <div class="sc c4"><div class="sl">Low Stock (&lt;10)</div><div class="sv" id="stLow">-</div></div>
+          <div class="sc c3"><div class="sl">In-Stock Items</div><div class="sv" id="stIn">-</div></div>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>Product</th><th>Category</th><th>Unit</th><th>Rate</th><th>Qty</th><th>Stock Value</th><th>Status</th><th>Adjust</th></tr></thead>
+          <tbody id="stockTbl"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- ═══ PURCHASES ═══ -->
+      <div id="pg-purchases" class="page">
+        <div class="ph">
+          <div><h2>Purchases</h2><div class="phs">Add purchase → stock increases automatically</div></div>
+          <button class="btn btn-acc" onclick="openPurchModal()">+ New Purchase</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Purchase History</div><input class="sinp" placeholder="Search..." oninput="filterPurch(this.value)"></div>
+          <div class="tw"><table>
+            <thead><tr><th>#</th><th>Product</th><th>Supplier</th><th>Qty</th><th>Rate</th><th>Total</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="purchTbl"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ═══ BILLING ═══ -->
+      <div id="pg-billing" class="page">
+        <div class="ph">
+          <div><h2>Billing</h2><div class="phs">Create bill → stock decreases automatically</div></div>
+          <button class="btn btn-acc" onclick="openBillModal()">+ New Bill</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Bill History</div><input class="sinp" placeholder="Search..." oninput="filterBills(this.value)"></div>
+          <div class="tw"><table>
+            <thead><tr><th>Bill No.</th><th>Customer</th><th>GST No.</th><th>Items</th><th>Total</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="billTbl"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ═══ SALES ═══ -->
+      <div id="pg-sales" class="page">
+        <div class="ph">
+          <div><h2>Sales</h2><div class="phs">All sold items from billing (auto from stock)</div></div>
+          <div style="display:flex;gap:10px">
+            <input class="sinp" type="date" id="salesFrom">
+            <input class="sinp" type="date" id="salesTo">
+            <button class="btn btn-acc" onclick="loadSales()">Filter</button>
+          </div>
+        </div>
+        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc c3"><div class="sl">Total Items Sold</div><div class="sv" id="salesTotalItems">-</div></div>
+          <div class="sc c2"><div class="sl">Total Sale Value</div><div class="sv sm" id="salesTotalVal">-</div></div>
+          <div class="sc c6"><div class="sl">Total Bills</div><div class="sv" id="salesTotalBills">-</div></div>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>Bill No.</th><th>Date</th><th>Customer</th><th>Product</th><th>Unit</th><th>W</th><th>H</th><th>NOS</th><th>Sq.Ft</th><th>Rate</th><th>Value</th></tr></thead>
+          <tbody id="salesTbl"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- ═══ CUSTOMERS ═══ -->
+      <div id="pg-customers" class="page">
+        <div class="ph">
+          <div><h2>Customers</h2><div class="phs">Manage customers and bill history</div></div>
+          <div style="display:flex;gap:10px">
+            <input class="sinp" placeholder="Search..." oninput="filterCust(this.value)">
+            <button class="btn btn-acc" onclick="openCustModal()">+ Add Customer</button>
+          </div>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>GST No.</th><th>Address</th><th>Bills</th><th>Total</th><th>Actions</th></tr></thead>
+          <tbody id="custTbl"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- ═══ REPORTS ═══ -->
+      <div id="pg-reports" class="page">
+        <div class="ph">
+          <div><h2>Reports — Profit & Loss</h2><div class="phs">Day / Month / Year wise Sale, Purchase & P&L</div></div>
+        </div>
+        <!-- Filter bar -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-head" style="flex-wrap:wrap;gap:10px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select class="sinp" id="rptType" style="width:140px" onchange="loadReports()">
+                <option value="daily">Daily</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+              <input class="sinp" type="date" id="rptFrom" style="width:145px">
+              <input class="sinp" type="date" id="rptTo" style="width:145px">
+              <button class="btn btn-acc" onclick="loadReports()">Generate Report</button>
+            </div>
+          </div>
+        </div>
+        <!-- Summary -->
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+          <div class="sc c3"><div class="sl">Total Sale</div><div class="sv sm" id="rTotalSale">-</div></div>
+          <div class="sc c7"><div class="sl">Total Purchase</div><div class="sv sm" id="rTotalPurch">-</div></div>
+          <div class="sc c3"><div class="sl">Net Profit/Loss</div><div class="sv sm" id="rNetPL">-</div></div>
+          <div class="sc c1"><div class="sl">Periods</div><div class="sv" id="rPeriods">-</div></div>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>Period</th><th>Bills</th><th>Total Sale</th><th>Purchases</th><th>Total Purchase</th><th>Profit / Loss</th><th>Margin %</th></tr></thead>
+          <tbody id="rptTbl"></tbody>
+        </table></div></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Product Modal -->
+<div class="overlay" id="mProd">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title" id="mProdTitle">Add Product</div>
+    <input type="hidden" id="mProdId">
+    <div class="fr s1"><div class="fg"><label>Product Name *</label><input type="text" id="pName" placeholder="e.g. Plywood 18mm"></div></div>
+    <div class="fr s3">
+      <div class="fg"><label>Category</label>
+        <select id="pCat"><option>Plywood</option><option>MDF</option><option>Board</option><option>Laminate</option><option>Veneer</option><option>WPC</option><option>Wood</option><option>Adhesive</option><option>Hardware</option><option>Glass</option><option>Beading</option><option>Door</option><option>Other</option></select>
+      </div>
+      <div class="fg"><label>Unit *</label>
+        <select id="pUnit"><option value="sq.ft">sq.ft</option><option value="rn.ft">rn.ft</option><option value="cu.ft">cu.ft</option><option value="sheet">Sheet</option><option value="kg">KG</option><option value="meter">Meter</option><option value="unit">Unit</option><option value="actual">Actual Bill</option></select>
+      </div>
+      <div class="fg"><label>Rate (₹)</label><input type="number" id="pRate" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+    <div class="fr s1"><div class="fg"><label><input type="checkbox" id="pActual"> &nbsp;Actual Bill (Rate varies)</label></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-out" onclick="closeM('mProd')">Cancel</button>
+      <button class="btn btn-acc" onclick="saveProd()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Adjust Modal -->
+<div class="overlay" id="mStock">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-title">Adjust Stock</div>
+    <div style="margin-bottom:14px;color:var(--muted);font-size:.9rem" id="mStockName"></div>
+    <input type="hidden" id="mStockId">
+    <div class="fr s1"><div class="fg"><label>New Quantity</label><input type="number" id="mStockQty" min="0" step="0.001"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-out" onclick="closeM('mStock')">Cancel</button>
+      <button class="btn btn-acc" onclick="saveStock()">Update Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase Modal -->
+<div class="overlay" id="mPurch">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title">New Purchase Entry</div>
+    <div class="fr s1"><div class="fg"><label>Product *</label><select id="mpProd" onchange="onPurchProdChange()"><option value="">-- Select Product --</option></select></div></div>
+    <div class="fr s3">
+      <div class="fg"><label>Quantity *</label><input type="number" id="mpQty" placeholder="0" step="0.001" min="0.001" oninput="calcPurchTotal()"></div>
+      <div class="fg"><label>Unit</label><input type="text" id="mpUnit" readonly style="background:var(--bg)"></div>
+      <div class="fg"><label>Rate (₹) *</label><input type="number" id="mpRate" placeholder="0.00" step="0.01" oninput="calcPurchTotal()"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Supplier Name</label><input type="text" id="mpSupplier" placeholder="Optional"></div>
+      <div class="fg"><label>Purchase Date *</label><input type="date" id="mpDate"></div>
+    </div>
+    <div class="fr s1"><div class="fg"><label>Notes</label><input type="text" id="mpNotes" placeholder="Optional"></div></div>
+    <div style="background:var(--bg);border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted)">Total Amount</span>
+      <span style="font-size:1.5rem;font-weight:800;color:var(--pri);font-family:'Rajdhani',sans-serif" id="mpTotal">₹ 0.00</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-out" onclick="closeM('mPurch')">Cancel</button>
+      <button class="btn btn-acc" onclick="savePurch()">Add Purchase</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bill Modal -->
+<div class="overlay" id="mBill">
+  <div class="modal" style="width:860px">
+    <div class="modal-title">Create New Bill</div>
+    <div class="fr s3">
+      <div class="fg"><label>Customer Name *</label><input type="text" id="mbCust" placeholder="Customer name" list="custDL"><datalist id="custDL"></datalist></div>
+      <div class="fg"><label>GST Number</label><input type="text" id="mbGst" placeholder="GST No. (optional)"></div>
+      <div class="fg"><label>Bill Date *</label><input type="date" id="mbDate"></div>
+    </div>
+    <div class="fr s1"><div class="fg"><label>Existing Customer</label><select id="mbCustId" onchange="onBillCustChange()"><option value="">-- Walk-in / New --</option></select></div></div>
+
+    <!-- Bill Items Table -->
+    <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">Bill Items</div>
+    <div class="bill-table">
+      <div class="brow bh"><span>Product</span><span>Unit</span><span>W(in)</span><span>H(in)</span><span>NOS</span><span>Sq.Ft / Qty</span><span></span></div>
+      <div id="billRows"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button class="btn btn-out btn-sm" onclick="addBillRow()">+ Add Item</button>
+    </div>
+
+    <!-- Rate & Total display -->
+    <div id="billRateTotals"></div>
+
+    <div class="btotal-box">
+      <span class="bl">Grand Total</span>
+      <span class="bv" id="billGrand">₹ 0.00</span>
+    </div>
+    <div class="fr s1" style="margin-top:14px"><div class="fg"><label>Notes</label><input type="text" id="mbNotes" placeholder="Optional"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-out" onclick="closeM('mBill')">Cancel</button>
+      <button class="btn btn-acc" onclick="saveBill()">Save Bill</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Bill Modal -->
+<div class="overlay" id="mViewBill">
+  <div class="modal" style="width:750px" id="printArea">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <img src="logo.png" style="width:60px" onerror="this.style.display='none'">
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--pri)">METE INDUSTRY</div>
+          <div style="color:var(--muted);font-size:.8rem">Tax Invoice</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:1.1rem;font-weight:800;color:var(--pri)" id="vBillNo"></div>
+        <div style="color:var(--muted);font-size:.82rem" id="vBillDate"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;padding:12px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between">
+      <div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Customer</div><div style="font-weight:700" id="vCust"></div></div>
+      <div style="text-align:right"><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">GST No.</div><div style="font-weight:700" id="vGst"></div></div>
+    </div>
+    <div class="tw"><table style="margin-bottom:14px">
+      <thead><tr><th>Sr.</th><th>Product</th><th>Unit</th><th>W</th><th>H</th><th>NOS</th><th>Sq.Ft/Qty</th><th>Rate</th><th>Value</th></tr></thead>
+      <tbody id="vItems"></tbody>
+    </table></div>
+    <div style="text-align:right;padding:14px 16px;background:var(--pri);color:#fff;border-radius:8px;font-size:1.3rem;font-weight:800;font-family:'Rajdhani',sans-serif" id="vTotal"></div>
+    <div id="vNotes" style="margin-top:10px;color:var(--muted);font-size:.85rem"></div>
+    <div class="modal-actions no-print">
+      <button class="btn btn-out" onclick="closeM('mViewBill')">Close</button>
+      <button class="btn btn-pri" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Modal -->
+<div class="overlay" id="mCust">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title" id="mCustTitle">Add Customer</div>
+    <input type="hidden" id="mCustId">
+    <div class="fr s1"><div class="fg"><label>Name *</label><input type="text" id="cName" placeholder="Full name"></div></div>
+    <div class="fr">
+      <div class="fg"><label>Phone</label><input type="tel" id="cPhone" placeholder="Mobile number"></div>
+      <div class="fg"><label>GST Number</label><input type="text" id="cGst" placeholder="GST No. (optional)"></div>
+    </div>
+    <div class="fr s1"><div class="fg"><label>Address</label><textarea id="cAddr" rows="2" style="resize:vertical" placeholder="Address (optional)"></textarea></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-out" onclick="closeM('mCust')">Cancel</button>
+      <button class="btn btn-acc" onclick="saveCust()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer History Modal -->
+<div class="overlay" id="mHistory">
+  <div class="modal" style="width:660px">
+    <div class="modal-title" id="mHistTitle">Bill History</div>
+    <div class="tw"><table><thead><tr><th>Bill No.</th><th>Date</th><th>Products</th><th>Amount</th></tr></thead><tbody id="histTbl"></tbody></table></div>
+    <div style="margin-top:14px;padding:12px 16px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between">
+      <span style="color:var(--muted)">Total Purchase Value</span>
+      <span style="font-weight:800;color:var(--pri);font-family:'Rajdhani',sans-serif;font-size:1.2rem" id="histTotal"></span>
+    </div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeM('mHistory')">Close</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+const $ = id => document.getElementById(id);
+const fmt = v => '₹ ' + parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:2});
+const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '-';
+const today = () => new Date().toISOString().split('T')[0];
+const token = () => localStorage.getItem('mi_tok');
+
+let STATE = { products:[], purchases:[], bills:[], customers:[], stock:[] };
+let billRowIdx = 0;
+
+function toast(msg, type='info') {
+  const t = $('toast');
+  t.className = `toast ${type}`;
+  t.innerHTML = `${type==='success'?'✓':type==='error'?'✗':'ℹ'} ${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+async function api(method, url, body=null) {
+  const opts = { method, headers: {'Content-Type':'application/json','Authorization':`Bearer ${token()}`} };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch('/api' + url, opts);
+    if (r.status === 401) { localStorage.clear(); showLogin(); return null; }
+    return await r.json();
+  } catch { toast('Server error!','error'); return null; }
+}
+
+function closeM(id) { $(id).classList.remove('open'); }
+
+// ── SPLASH → LOGIN → APP ──────────────────────
+window.addEventListener('load', () => {
+  $('tbDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if (token()) { $('splash').style.display='none'; showApp(); }
+  else {
+    setTimeout(() => {
+      $('splash').classList.add('hide');
+      setTimeout(() => { $('splash').style.display='none'; showLogin(); }, 800);
+    }, 3000);
+  }
+});
+
+function showLogin() { $('loginPage').classList.add('show'); }
+function hideLogin() { $('loginPage').classList.remove('show'); }
+function showApp() {
+  hideLogin();
+  $('app').classList.add('show');
+  const u = localStorage.getItem('mi_usr')||'Admin';
+  $('tbAvatar').textContent = u[0].toUpperCase();
+  $('logoutLabel').textContent = `Logout (${u})`;
+  $('dashSub').textContent = `Hello, ${u}! Here's your business overview.`;
+  loadAll();
+}
+
+$('lpass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+$('luname').addEventListener('keydown', e => { if(e.key==='Enter') $('lpass').focus(); });
+
+async function doLogin() {
+  const u=$('luname').value.trim(), p=$('lpass').value;
+  const err=$('lerr'); err.classList.remove('show');
+  if (!u||!p) { err.textContent='Enter username and password'; err.classList.add('show'); return; }
+  const btn=$('loginBtn'); btn.textContent='Logging in...'; btn.disabled=true;
+  const r = await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const d = await r.json();
+  if (d.success) {
+    localStorage.setItem('mi_tok', d.token);
+    localStorage.setItem('mi_usr', d.username);
+    btn.textContent='✓ Success!';
+    setTimeout(() => { $('splash') && ($('splash').style.display='none'); showApp(); }, 500);
+  } else {
+    err.textContent = d.message||'Invalid credentials'; err.classList.add('show');
+    btn.textContent='LOGIN'; btn.disabled=false;
+  }
+}
+
+function doLogout() {
+  if (!confirm('Logout?')) return;
+  localStorage.clear(); $('app').classList.remove('show'); showLogin();
+}
+
+// ── NAVIGATION ────────────────────────────────
+const PAGE_TITLES = {dashboard:'Dashboard',products:'Products',stock:'Stock Management',purchases:'Purchases',billing:'Billing',sales:'Sales',customers:'Customers',reports:'Reports — Profit & Loss'};
+const PAGE_LOADERS = {dashboard:loadDash,products:loadProd,stock:loadStock,purchases:loadPurch,billing:loadBills,sales:loadSales,customers:loadCust,reports:loadReports};
+
+function goTo(pg) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  $(`pg-${pg}`).classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const pages = ['dashboard','products','stock','purchases','billing','sales','customers','reports'];
+  const idx = pages.indexOf(pg);
+  if(navItems[idx]) navItems[idx].classList.add('active');
+  $('tbTitle').textContent = PAGE_TITLES[pg]||pg;
+  PAGE_LOADERS[pg]?.();
+}
+
+// ── LOAD ALL ──────────────────────────────────
+async function loadAll() {
+  const [p,c] = await Promise.all([api('GET','/products'),api('GET','/customers')]);
+  if(p&&p.success) STATE.products=p.data;
+  if(c&&c.success) STATE.customers=c.data;
+  populateProdDropdowns(); populateCustDropdowns(); loadDash();
+}
+
+function populateProdDropdowns() {
+  const opts = `<option value="">-- Select Product --</option>` +
+    STATE.products.map(p=>`<option value="${p.id}" data-unit="${p.unit}" data-rate="${p.rate}" data-actual="${p.is_actual_bill}">${p.name}</option>`).join('');
+  $('mpProd').innerHTML = opts;
+}
+
+function populateCustDropdowns() {
+  $('mbCustId').innerHTML = `<option value="">-- Walk-in / New --</option>` +
+    STATE.customers.map(c=>`<option value="${c.id}" data-name="${c.name}" data-gst="${c.gst_number||''}">${c.name}</option>`).join('');
+  $('custDL').innerHTML = STATE.customers.map(c=>`<option value="${c.name}">`).join('');
+}
+
+// ── DASHBOARD ─────────────────────────────────
+async function loadDash() {
+  const d = await api('GET','/dashboard'); if(!d||!d.success) return;
+  const x=d.data;
+  $('d1').textContent=x.total_products;
+  $('d2').textContent=fmt(x.stock_value);
+  $('d3').textContent=fmt(x.today_sales);
+  $('d4').textContent=fmt(x.month_sales);
+  $('d7').textContent=fmt(x.today_purchase);
+  $('d8').textContent=fmt(x.month_purchase);
+  const pl=parseFloat(x.month_profit||0);
+  $('d9').textContent=fmt(pl);
+  $('d9').className='sv sm '+(pl>=0?'profit':'loss');
+  $('d5').textContent=x.low_stock;
+  $('dPurch').innerHTML = x.recent_purchases.length
+    ? x.recent_purchases.map(p=>`<tr><td><b>${p.product_name}</b></td><td>${p.quantity} ${p.unit}</td><td>${fmt(p.total)}</td><td>${fmtD(p.purchase_date)}</td></tr>`).join('')
+    : `<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">No purchases yet</td></tr>`;
+  $('dBills').innerHTML = x.recent_bills.length
+    ? x.recent_bills.map(b=>`<tr><td><b>${b.bill_number}</b></td><td>${b.customer_name||'-'}</td><td>${fmt(b.total_amount)}</td><td>${fmtD(b.bill_date)}</td></tr>`).join('')
+    : `<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">No bills yet</td></tr>`;
+}
+
+// ── PRODUCTS ──────────────────────────────────
+async function loadProd() {
+  const d=await api('GET','/products'); if(!d||!d.success) return;
+  STATE.products=d.data; populateProdDropdowns(); renderProd(STATE.products);
+}
+function renderProd(items) {
+  $('prodTbl').innerHTML = items.length
+    ? items.map((p,i)=>`<tr>
+        <td style="color:var(--muted)">${i+1}</td><td><b>${p.name}</b></td>
+        <td><span class="badge bb">${p.category||'-'}</span></td><td>${p.unit}</td>
+        <td>${p.is_actual_bill?'<span class="badge bo">Actual Bill</span>':fmt(p.rate)}</td>
+        <td>${p.is_actual_bill?'-':parseFloat(p.stock_qty)<10?`<span class="badge br">${p.stock_qty} ${p.unit}</span>`:`<span class="badge bg">${p.stock_qty} ${p.unit}</span>`}</td>
+        <td><button class="btn btn-out btn-sm" onclick="editProd(${p.id})">Edit</button> <button class="btn btn-dan btn-sm" onclick="delProd(${p.id},'${p.name.replace(/'/g,"\\'")}')">Del</button></td>
+      </tr>`).join('')
+    : `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No products</td></tr>`;
+}
+function filterProd(q){ renderProd(STATE.products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||(p.category||'').toLowerCase().includes(q.toLowerCase()))); }
+function openProdModal(){ $('mProdTitle').textContent='Add Product'; $('mProdId').value=''; $('pName').value=''; $('pUnit').value='sq.ft'; $('pRate').value=''; $('pActual').checked=false; $('pCat').value='Plywood'; $('mProd').classList.add('open'); }
+function editProd(id) { const p=STATE.products.find(x=>x.id===id); if(!p) return; $('mProdTitle').textContent='Edit Product'; $('mProdId').value=p.id; $('pName').value=p.name; $('pUnit').value=p.unit; $('pRate').value=p.rate; $('pActual').checked=!!p.is_actual_bill; $('pCat').value=p.category||'Other'; $('mProd').classList.add('open'); }
+async function saveProd() {
+  const id=$('mProdId').value;
+  const body={name:$('pName').value.trim(),unit:$('pUnit').value,rate:parseFloat($('pRate').value)||0,is_actual_bill:$('pActual').checked,category:$('pCat').value};
+  if(!body.name) return toast('Product name required','error');
+  const r=id?await api('PUT',`/products/${id}`,body):await api('POST','/products',body);
+  if(r&&r.success){toast(r.message,'success');closeM('mProd');loadProd();}else if(r) toast(r.message,'error');
+}
+async function delProd(id,name) { if(!confirm(`Delete "${name}"?`)) return; const r=await api('DELETE',`/products/${id}`); if(r&&r.success){toast('Deleted','success');loadProd();} }
+
+// ── STOCK ─────────────────────────────────────
+async function loadStock() {
+  const d=await api('GET','/stock'); if(!d||!d.success) return;
+  STATE.stock=d.data;
+  const cats=[...new Set(STATE.stock.map(s=>s.category).filter(Boolean))].sort();
+  $('stockCatF').innerHTML='<option value="">All Categories</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  renderStock(STATE.stock); updateStockSummary(STATE.stock);
+}
+function renderStock(items) {
+  $('stockTbl').innerHTML = items.map((s,i)=>{
+    const q=parseFloat(s.quantity);
+    const badge=s.is_actual_bill?`<span class="badge bb">Actual</span>`:q<=0?`<span class="badge br">Out</span>`:q<10?`<span class="badge bo">Low</span>`:`<span class="badge bg">OK</span>`;
+    return `<tr><td style="color:var(--muted)">${i+1}</td><td><b>${s.name}</b></td><td>${s.category||'-'}</td><td>${s.unit}</td><td>${s.is_actual_bill?'-':fmt(s.rate)}</td><td><b>${s.quantity}</b></td><td>${s.is_actual_bill?'-':fmt(s.stock_value)}</td><td>${badge}</td><td><button class="btn btn-out btn-sm" onclick="openStockAdj(${s.id},'${s.name.replace(/'/g,"\\'")}',${s.quantity})">Adjust</button></td></tr>`;
+  }).join('') || `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">No data</td></tr>`;
+}
+function filterStock(q) { const cat=$('stockCatF').value; let items=STATE.stock; if(q) items=items.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())); if(cat) items=items.filter(s=>s.category===cat); renderStock(items); updateStockSummary(items); }
+function updateStockSummary(items) { $('stVal').textContent=fmt(items.filter(s=>!s.is_actual_bill).reduce((a,s)=>a+parseFloat(s.stock_value||0),0)); $('stLow').textContent=items.filter(s=>!s.is_actual_bill&&parseFloat(s.quantity)<10).length; $('stIn').textContent=items.filter(s=>parseFloat(s.quantity)>0).length; }
+function openStockAdj(id,name,qty){$('mStockId').value=id;$('mStockName').textContent=`Product: ${name}`;$('mStockQty').value=qty;$('mStock').classList.add('open');}
+async function saveStock(){const qty=parseFloat($('mStockQty').value);if(isNaN(qty)||qty<0)return toast('Enter valid quantity','error');const r=await api('PUT',`/stock/${$('mStockId').value}`,{quantity:qty});if(r&&r.success){toast('Stock updated!','success');closeM('mStock');loadStock();}}
+
+// ── PURCHASES ─────────────────────────────────
+async function loadPurch(){const d=await api('GET','/purchases');if(!d||!d.success)return;STATE.purchases=d.data;renderPurch(STATE.purchases);}
+function renderPurch(items){$('purchTbl').innerHTML=items.length?items.map((p,i)=>`<tr><td style="color:var(--muted)">${i+1}</td><td><b>${p.product_name}</b></td><td>${p.supplier_name||'-'}</td><td>${p.quantity} ${p.unit}</td><td>${fmt(p.rate)}</td><td><b>${fmt(p.total)}</b></td><td>${fmtD(p.purchase_date)}</td><td><button class="btn btn-dan btn-sm" onclick="delPurch(${p.id})">Delete</button></td></tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">No purchases yet</td></tr>`;}
+function filterPurch(q){renderPurch(STATE.purchases.filter(p=>p.product_name.toLowerCase().includes(q.toLowerCase())||(p.supplier_name||'').toLowerCase().includes(q.toLowerCase())));}
+function openPurchModal(){$('mpProd').value='';$('mpQty').value='';$('mpUnit').value='';$('mpRate').value='';$('mpSupplier').value='';$('mpDate').value=today();$('mpNotes').value='';$('mpTotal').textContent='₹ 0.00';$('mPurch').classList.add('open');}
+function onPurchProdChange(){const sel=$('mpProd'),opt=sel.options[sel.selectedIndex];$('mpUnit').value=opt.dataset.unit||'';$('mpRate').value=opt.dataset.actual==='1'?'':(opt.dataset.rate||'');calcPurchTotal();}
+function calcPurchTotal(){$('mpTotal').textContent=fmt((parseFloat($('mpQty').value)||0)*(parseFloat($('mpRate').value)||0));}
+async function savePurch(){const pid=$('mpProd').value,qty=parseFloat($('mpQty').value),rate=parseFloat($('mpRate').value),dt=$('mpDate').value;if(!pid)return toast('Select product','error');if(!qty||qty<=0)return toast('Enter valid quantity','error');if(isNaN(rate)||rate<0)return toast('Enter valid rate','error');if(!dt)return toast('Select date','error');const r=await api('POST','/purchases',{product_id:pid,quantity:qty,rate,purchase_date:dt,supplier_name:$('mpSupplier').value,notes:$('mpNotes').value});if(r&&r.success){toast('Purchase added! Stock updated.','success');closeM('mPurch');loadPurch();loadAll();}else if(r) toast(r.message,'error');}
+async function delPurch(id){if(!confirm('Delete this purchase? Stock will decrease.'))return;const r=await api('DELETE',`/purchases/${id}`);if(r&&r.success){toast('Deleted','success');loadPurch();loadAll();}}
+
+// ── BILLING ───────────────────────────────────
+async function loadBills(){const d=await api('GET','/bills');if(!d||!d.success)return;STATE.bills=d.data;renderBills(STATE.bills);}
+function renderBills(items){
+  $('billTbl').innerHTML=items.length
+    ?items.map(b=>`<tr>
+        <td><b style="color:var(--acc2)">${b.bill_number}</b></td>
+        <td>${b.customer_name||'-'}</td>
+        <td style="font-size:.8rem">${b.customer_gst||'-'}</td>
+        <td>${b.item_count} item(s)</td>
+        <td><b>${fmt(b.total_amount)}</b></td>
+        <td>${fmtD(b.bill_date)}</td>
+        <td><button class="btn btn-out btn-sm" onclick="viewBill(${b.id})">View</button> <button class="btn btn-dan btn-sm" onclick="delBill(${b.id},'${b.bill_number}')">Delete</button></td>
+      </tr>`).join('')
+    :`<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No bills yet</td></tr>`;
+}
+function filterBills(q){renderBills(STATE.bills.filter(b=>b.bill_number.toLowerCase().includes(q.toLowerCase())||(b.customer_name||'').toLowerCase().includes(q.toLowerCase())));}
+
+function openBillModal(){
+  $('mbCust').value='';$('mbGst').value='';$('mbCustId').value='';$('mbDate').value=today();$('mbNotes').value='';
+  $('billRows').innerHTML='';$('billRateTotals').innerHTML='';billRowIdx=0;
+  $('billGrand').textContent='₹ 0.00';
+  addBillRow();
+  $('mBill').classList.add('open');
+}
+
+function onBillCustChange(){const sel=$('mbCustId'),opt=sel.options[sel.selectedIndex];if(opt.dataset.name){$('mbCust').value=opt.dataset.name;$('mbGst').value=opt.dataset.gst||'';}}
+
+function addBillRow(){
+  billRowIdx++;
+  const rid='br'+billRowIdx;
+  const prodOpts=STATE.products.map(p=>`<option value="${p.id}" data-unit="${p.unit}" data-rate="${p.rate}" data-actual="${p.is_actual_bill}">${p.name}</option>`).join('');
+  const div=document.createElement('div');
+  div.className='brow'; div.id=rid;
+  div.innerHTML=`
+    <select onchange="onBillRowProd('${rid}')"><option value="">-- Select --</option>${prodOpts}</select>
+    <input type="text" class="runit" readonly placeholder="unit">
+    <input type="number" class="rw" placeholder="W(in)" min="0" step="0.01" oninput="calcBillRow('${rid}')">
+    <input type="number" class="rh" placeholder="H(in)" min="0" step="0.01" oninput="calcBillRow('${rid}')">
+    <input type="number" class="rnos" placeholder="NOS" min="1" step="1" value="1" oninput="calcBillRow('${rid}')">
+    <input type="number" class="rqty" placeholder="Qty/SqFt" min="0" step="0.0001" oninput="calcGrand()">
+    <button class="rmv" onclick="document.getElementById('${rid}').remove();calcGrand()">✕</button>`;
+  $('billRows').appendChild(div);
+}
+
+function onBillRowProd(rid){
+  const row=$(rid),sel=row.querySelector('select'),opt=sel.options[sel.selectedIndex];
+  const unit=opt.dataset.unit||'';
+  row.querySelector('.runit').value=unit;
+  // Set rate in rate-totals area
+  calcBillRow(rid);
+}
+
+function calcBillRow(rid){
+  const row=$(rid);
+  const sel=row.querySelector('select'),opt=sel.options[sel.selectedIndex];
+  const unit=opt.dataset.unit||'';
+  const w=parseFloat(row.querySelector('.rw').value)||0;
+  const h=parseFloat(row.querySelector('.rh').value)||0;
+  const nos=parseFloat(row.querySelector('.rnos').value)||1;
+  let qty=0;
+  // If sq.ft based unit: W(inch) × H(inch) × NOS ÷ 144 = sqft
+  if(unit==='sq.ft'||unit==='rn.ft'){
+    if(w>0&&h>0){ qty=(w*h*nos)/144; }
+    else qty=0;
+  } else if(unit==='cu.ft'){
+    // W×H×nos / 1728
+    if(w>0&&h>0){ qty=(w*h*nos)/1728; }
+  } else {
+    qty=nos;
+  }
+  row.querySelector('.rqty').value=qty?qty.toFixed(6):'';
+  calcGrand();
+}
+
+function calcGrand(){
+  let t=0;
+  // Build rate-totals
+  let rtHtml='';
+  document.querySelectorAll('#billRows .brow').forEach(row=>{
+    const sel=row.querySelector('select'),opt=sel.options[sel.selectedIndex];
+    if(!sel.value) return;
+    const rate=parseFloat(opt.dataset.rate)||0;
+    const qty=parseFloat(row.querySelector('.rqty')?.value)||0;
+    const total=qty*rate;
+    t+=total;
+    rtHtml+=`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.83rem;color:var(--muted)"><span>${opt.text}</span><span>${qty.toFixed(4)} × ₹${rate} = <b style="color:var(--pri)">${fmt(total)}</b></span></div>`;
+  });
+  $('billRateTotals').innerHTML=rtHtml?`<div style="background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:12px">${rtHtml}</div>`:'';
+  $('billGrand').textContent=fmt(t);
+}
+
+async function saveBill(){
+  const cust=$('mbCust').value.trim(),dt=$('mbDate').value;
+  if(!cust) return toast('Enter customer name','error');
+  if(!dt) return toast('Select date','error');
+  const items=[];let ok=true;
+  document.querySelectorAll('#billRows .brow').forEach(row=>{
+    const sel=row.querySelector('select'),opt=sel.options[sel.selectedIndex];
+    const qty=parseFloat(row.querySelector('.rqty')?.value);
+    const rate=parseFloat(opt.dataset.rate)||0;
+    const w=parseFloat(row.querySelector('.rw')?.value)||0;
+    const h=parseFloat(row.querySelector('.rh')?.value)||0;
+    const nos=parseInt(row.querySelector('.rnos')?.value)||1;
+    if(!sel.value||!qty||qty<=0){ok=false;return;}
+    items.push({product_id:parseInt(sel.value),product_name:opt.text,unit:row.querySelector('.runit').value,item_w:w,item_h:h,nos,quantity:qty,rate,total:qty*rate});
+  });
+  if(!ok||!items.length) return toast('Add at least one valid item','error');
+  const r=await api('POST','/bills',{customer_id:$('mbCustId').value||null,customer_name:cust,customer_gst:$('mbGst').value,bill_date:dt,items,notes:$('mbNotes').value});
+  if(r&&r.success){toast(`Bill ${r.bill_number} created!`,'success');closeM('mBill');loadBills();loadAll();}
+  else if(r) toast(r.message,'error');
+}
+
+async function viewBill(id){
+  const r=await api('GET',`/bills/${id}`);if(!r||!r.success)return toast('Could not load bill','error');
+  const b=r.data;
+  $('vBillNo').textContent=b.bill_number;
+  $('vBillDate').textContent=fmtD(b.bill_date);
+  $('vCust').textContent=b.customer_name||'Walk-in Customer';
+  $('vGst').textContent=b.customer_gst||'-';
+  $('vNotes').textContent=b.notes?`Notes: ${b.notes}`:'';
+  $('vItems').innerHTML=b.items.map((item,i)=>`<tr>
+    <td>${i+1}</td><td>${item.product_name}</td><td>${item.unit}</td>
+    <td>${item.item_w||'-'}</td><td>${item.item_h||'-'}</td><td>${item.nos||1}</td>
+    <td>${parseFloat(item.quantity).toFixed(4)}</td>
+    <td>${fmt(item.rate)}</td><td><b>${fmt(item.total)}</b></td>
+  </tr>`).join('');
+  $('vTotal').textContent='Total: '+fmt(b.total_amount);
+  $('mViewBill').classList.add('open');
+}
+
+async function delBill(id,num){
+  if(!confirm(`Delete bill ${num}? Stock will be restored.`))return;
+  const r=await api('DELETE',`/bills/${id}`);
+  if(r&&r.success){toast('Deleted. Stock restored.','success');loadBills();loadAll();}
+}
+
+// ── SALES ─────────────────────────────────────
+async function loadSales(){
+  const from=$('salesFrom').value,to=$('salesTo').value;
+  let url='/sales';
+  const r=await api('GET',url);if(!r||!r.success)return;
+  let data=r.data;
+  if(from) data=data.filter(s=>s.bill_date>=from);
+  if(to)   data=data.filter(s=>s.bill_date<=to);
+  $('salesTotalItems').textContent=data.length;
+  $('salesTotalVal').textContent=fmt(data.reduce((a,s)=>a+parseFloat(s.total||0),0));
+  const bills=new Set(data.map(s=>s.bill_number));
+  $('salesTotalBills').textContent=bills.size;
+  $('salesTbl').innerHTML=data.length
+    ?data.map((s,i)=>`<tr>
+        <td><b style="color:var(--acc2)">${s.bill_number}</b></td>
+        <td>${fmtD(s.bill_date)}</td>
+        <td>${s.customer_name||'-'}</td>
+        <td><b>${s.product_name}</b></td>
+        <td>${s.unit}</td>
+        <td>${s.item_w||'-'}</td>
+        <td>${s.item_h||'-'}</td>
+        <td>${s.nos||1}</td>
+        <td>${parseFloat(s.quantity).toFixed(4)}</td>
+        <td>${fmt(s.rate)}</td>
+        <td><b>${fmt(s.total)}</b></td>
+      </tr>`).join('')
+    :`<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--muted)">No sales data</td></tr>`;
+}
+
+// ── CUSTOMERS ─────────────────────────────────
+async function loadCust(){const d=await api('GET','/customers');if(!d||!d.success)return;STATE.customers=d.data;populateCustDropdowns();renderCust(STATE.customers);}
+function renderCust(items){
+  $('custTbl').innerHTML=items.length
+    ?items.map((c,i)=>`<tr>
+        <td style="color:var(--muted)">${i+1}</td><td><b>${c.name}</b></td>
+        <td>${c.phone||'-'}</td>
+        <td><span style="font-size:.82rem">${c.gst_number||'-'}</span></td>
+        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.address||'-'}</td>
+        <td><span class="badge bb">${c.total_bills}</span></td>
+        <td><b>${fmt(c.total_purchase)}</b></td>
+        <td>
+          <button class="btn btn-out btn-sm" onclick="viewCustHist(${c.id},'${c.name.replace(/'/g,"\\'")}',${c.total_purchase})">History</button>
+          <button class="btn btn-out btn-sm" onclick="editCust(${c.id})">Edit</button>
+          <button class="btn btn-dan btn-sm" onclick="delCust(${c.id},'${c.name.replace(/'/g,"\\'")}')">Del</button>
+        </td>
+      </tr>`).join('')
+    :`<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">No customers yet</td></tr>`;
+}
+function filterCust(q){renderCust(STATE.customers.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||(c.phone||'').includes(q)||(c.gst_number||'').includes(q)));}
+function openCustModal(){$('mCustTitle').textContent='Add Customer';$('mCustId').value='';$('cName').value='';$('cPhone').value='';$('cAddr').value='';$('cGst').value='';$('mCust').classList.add('open');}
+function editCust(id){const c=STATE.customers.find(x=>x.id===id);if(!c)return;$('mCustTitle').textContent='Edit Customer';$('mCustId').value=c.id;$('cName').value=c.name;$('cPhone').value=c.phone||'';$('cAddr').value=c.address||'';$('cGst').value=c.gst_number||'';$('mCust').classList.add('open');}
+async function saveCust(){const id=$('mCustId').value;const body={name:$('cName').value.trim(),phone:$('cPhone').value.trim(),address:$('cAddr').value.trim(),gst_number:$('cGst').value.trim()};if(!body.name)return toast('Name required','error');const r=id?await api('PUT',`/customers/${id}`,body):await api('POST','/customers',body);if(r&&r.success){toast(r.message,'success');closeM('mCust');loadCust();}else if(r) toast(r.message,'error');}
+async function viewCustHist(id,name,total){$('mHistTitle').textContent=`Bill History — ${name}`;$('histTotal').textContent=fmt(total);$('histTbl').innerHTML=`<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">Loading...</td></tr>`;$('mHistory').classList.add('open');const r=await api('GET',`/customers/${id}/bills`);if(!r||!r.success)return;$('histTbl').innerHTML=r.data.length?r.data.map(b=>`<tr><td><b style="color:var(--acc2)">${b.bill_number}</b></td><td>${fmtD(b.bill_date)}</td><td style="font-size:.82rem;color:var(--muted)">${b.products||'-'}</td><td><b>${fmt(b.total_amount)}</b></td></tr>`).join(''):`<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted)">No bills yet</td></tr>`;}
+async function delCust(id,name){if(!confirm(`Delete "${name}"?`))return;const r=await api('DELETE',`/customers/${id}`);if(r&&r.success){toast('Deleted','success');loadCust();}}
+
+// ── REPORTS ───────────────────────────────────
+async function loadReports(){
+  const type=$('rptType').value,from=$('rptFrom').value,to=$('rptTo').value;
+  let url=`/reports?type=${type}`;
+  if(from&&to) url+=`&from=${from}&to=${to}`;
+  const d=await api('GET',url);if(!d||!d.success)return;
+  const data=d.data;
+  let totalSale=0,totalPurch=0;
+  data.forEach(r=>{totalSale+=r.total_sale;totalPurch+=r.total_purchase;});
+  const netPL=totalSale-totalPurch;
+  $('rTotalSale').textContent=fmt(totalSale);
+  $('rTotalPurch').textContent=fmt(totalPurch);
+  $('rNetPL').textContent=fmt(netPL);
+  $('rNetPL').className='sv sm '+(netPL>=0?'profit':'loss');
+  $('rPeriods').textContent=data.length;
+  $('rptTbl').innerHTML=data.length
+    ?data.map(r=>{
+      const pl=r.profit;
+      const margin=r.total_sale>0?((pl/r.total_sale)*100).toFixed(1):0;
+      return `<tr class="${pl>=0?'profit-row':'loss-row'}">
+        <td><b>${r.period}</b></td>
+        <td>${r.bill_count||0}</td>
+        <td>${fmt(r.total_sale)}</td>
+        <td>${r.purchase_count||0}</td>
+        <td>${fmt(r.total_purchase)}</td>
+        <td><b style="color:${pl>=0?'var(--success)':'var(--danger)'}">${pl>=0?'+':''}${fmt(pl)}</b></td>
+        <td><span class="badge ${pl>=0?'bg':'br'}">${margin}%</span></td>
+      </tr>`;
+    }).join('')
+    :`<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No data found</td></tr>`;
+}
+</script>
+</body>
+</html>
