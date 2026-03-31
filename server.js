@@ -21,12 +21,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const db = mysql.createPool({
-  host            : 'localhost',
-  user            : 'root',
-  password        : 'root',          // ← तुमचा MySQL password इथे टाका
-  database        : 'mete_industry',
+  host     : process.env.MYSQLHOST     || 'localhost',
+  user     : process.env.MYSQLUSER     || 'root',
+  password : process.env.MYSQLPASSWORD || 'root',
+  database : process.env.MYSQLDATABASE || 'mete_industry',
+  port     : process.env.MYSQLPORT     || 3306,
   waitForConnections: true,
-  connectionLimit : 10
+  connectionLimit: 10
 }).promise();
 
 db.query('SELECT 1')
