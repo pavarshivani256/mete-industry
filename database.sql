@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS bills (
   bill_number VARCHAR(50) UNIQUE NOT NULL,
   customer_id INT,
   customer_name VARCHAR(200),
-  customer_gst VARCHAR(20) DEFAULT '',
+  customer_gst VARCHAR(20) UNIQUE NOT NULL,
   bill_date DATE NOT NULL,
   total_amount DECIMAL(12,2) NOT NULL,
   notes TEXT,
