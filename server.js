@@ -503,3 +503,9 @@ app.listen(PORT, () => {
   console.log('║  User : admin  Pass : admin      ║');
   console.log('╚══════════════════════════════════╝\n');
 });
+
+// Start server (IMPORTANT for Railway)
+app.listen(PORT, () => {
+  console.log("🚀 Server running on port " + PORT);
+});
+
